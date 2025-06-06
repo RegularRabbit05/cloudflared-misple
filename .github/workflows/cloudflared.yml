@@ -1,0 +1,37 @@
+name: Build and Release Cloudflared MIPS32
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:   
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      - name: Clone cloudflared repository
+        run: |
+          git clone https://github.com/cloudflare/cloudflared.git
+          cd cloudflared
+          echo "CLOUDFLARED_DIR=$PWD" >> $GITHUB_ENV
+
+      - name: Build cloudflared for linux/mipsle
+        run: |
+          cd $CLOUDFLARED_DIR
+          GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -o cloudflared github.com/cloudflare/cloudflared/cmd/cloudflared
+
+      - name: Create release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Daily Build - ${{ github.run_number }}
+          tag_name: daily-${{ github.run_number }}
+          files: ${{ env.CLOUDFLARED_DIR }}/cloudflared
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
