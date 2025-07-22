@@ -21,6 +21,15 @@ jobs:
           cd cloudflared
           echo "CLOUDFLARED_DIR=$PWD" >> $GITHUB_ENV
 
+      - name: Get cloudflared commit hash and URL
+        run: |
+          cd $CLOUDFLARED_DIR
+          COMMIT_HASH=$(git rev-parse HEAD)
+          COMMIT_URL="https://github.com/cloudflare/cloudflared/commit/$COMMIT_HASH"
+          echo "CLOUDFLARED_COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+          echo "CLOUDFLARED_COMMIT_URL=$COMMIT_URL" >> $GITHUB_ENV
+          echo "RELEASE_BODY=Built from cloudflare/cloudflared commit: $COMMIT_URL" >> $GITHUB_ENV
+
       - name: Build cloudflared for linux/mipsle
         run: |
           cd $CLOUDFLARED_DIR
@@ -33,5 +42,6 @@ jobs:
           name: Daily Build - ${{ github.run_number }}
           tag_name: daily-${{ github.run_number }}
           files: ${{ env.CLOUDFLARED_DIR }}/cloudflared
+          body: ${{ env.RELEASE_BODY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
