@@ -2,7 +2,7 @@ name: Build and Release Cloudflared MIPS32
 
 on:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '0 12 * * 0'
   workflow_dispatch:   
 
 jobs:
@@ -39,8 +39,8 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          name: Daily Build - ${{ github.run_number }}
-          tag_name: daily-${{ github.run_number }}
+          name: Weekly cloudflared Build - ${{ github.run_id }}
+          tag_name: weekly-cloudflared-${{ github.run_id }}
           files: ${{ env.CLOUDFLARED_DIR }}/cloudflared
           body: ${{ env.RELEASE_BODY }}
         env:
